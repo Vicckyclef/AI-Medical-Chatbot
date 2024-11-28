@@ -1,24 +1,24 @@
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import HeroSection from "./components/HeroSection"; // Update with correct path
+import SignUp from "./components/SignUp"; // Update with correct path
+import Login from "./components/Login"; // Update with correct path
+import ChatPage from "./pages/ChatPage"; // Update with correct path
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <Routes>
+        {/* Default route to HeroSection */}
+        <Route path="/" element={<HeroSection />} />
+        {/* Route to SignUp */}
+        <Route path="/signup" element={<SignUp />} />
+        {/* Route to Login */}
+        <Route path="/login" element={<Login />} />
+        {/* Route to ChatPage */}
+        <Route path="/chat" element={<ChatPage />} />
+      </Routes>
+    </Router>
   );
 }
 
