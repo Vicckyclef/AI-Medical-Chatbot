@@ -1,9 +1,9 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import HeroSection from "./components/HeroSection"; // Update with correct path
-import SignUp from "./components/SignUp"; // Update with correct path
-import Login from "./components/Login"; // Update with correct path
-import ChatPage from "./pages/ChatPage"; // Update with correct path
+import HeroSection from "./components/HeroSection";
+import SignUp from "./components/SignUp";
+import Login from "./components/Login";
+import ChatPage from "./components/ChatPage";
 
 function App() {
   return (
@@ -16,7 +16,7 @@ function App() {
         {/* Route to Login */}
         <Route path="/login" element={<Login />} />
         {/* Route to ChatPage */}
-        <Route path="/chat" element={<ChatPage />} />
+        <Route path="/ChatPage" element={<ChatPage />} />
       </Routes>
     </Router>
   );

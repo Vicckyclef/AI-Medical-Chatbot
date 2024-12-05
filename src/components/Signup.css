@@ -5,6 +5,7 @@
   background: linear-gradient(254deg, #FFF 8.98%, #C1DEEF 321.92%);
 }
 
+
 .signup-card {
   display: flex;
   height: 100vh;
@@ -55,10 +56,7 @@
 }
 
 .right-section {
-  padding-left: 12rem;
-  padding-right: 12rem;
-  padding-top: 5rem;
-  padding-bottom: 5rem;
+  padding: 5rem 12rem;
   flex: 0.6;
   text-align: center;
 }
@@ -115,7 +113,9 @@
   background: #ddd;
 }
 
-.signup-form input {
+.signup-form input[type="text"],
+.signup-form input[type="email"],
+.signup-form input[type="password"] {
   width: 100%;
   padding: 0.8rem;
   margin-bottom: 1rem;
@@ -142,14 +142,20 @@
 
 .terms {
   display: flex;
+  justify-content: center;
   align-items: center;
-  gap: 0.5rem;
   margin-bottom: 1rem;
+  gap: 0.5rem;
+}
+
+.terms input[type="checkbox"] {
+  width: auto; 
+  margin-right: 0.5rem;
+  flex-shrink: 0; 
 }
 
 .terms label {
-  padding: 0;
-  margin-right: 0rem;
+  vertical-align: middle;
   font-size: 0.9rem;
   color: #666;
 }

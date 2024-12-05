@@ -67,8 +67,9 @@ const Signup = () => {
             />
             <div className="terms">
               <input type="checkbox" id="terms" required />
-              <label htmlFor="terms">Agree with Terms and Privacy</label>
+              <label htmlFor="terms">I agree to the <a href="/terms" target="_blank">Terms</a> and <a href="/privacy" target="_blank">Privacy Policy</a></label>
             </div>
+
             <button type="submit">Sign Up</button>
           </form>
         </div>

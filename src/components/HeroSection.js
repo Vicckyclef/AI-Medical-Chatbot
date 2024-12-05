@@ -1,7 +1,7 @@
 import React from 'react';
-import './HeroSection.css'; // Ensure you have the CSS file in the same directory
+import './HeroSection.css';
 
-const Dashboard = () => {
+const HeroSection = () => {
   return (
     <div className="dashboard">
       {/* Navigation Bar */}
@@ -39,7 +39,7 @@ const Dashboard = () => {
           <p className="header-subtitle">
             Our AI-powered healthcare chatbot enhances patient support by providing accurate, real-time medical guidance and automating routine healthcare tasks.
           </p>
-          <a href="/Chatbot">
+          <a href="/ChatPage">
             <button className="button get-started">Get Started</button>
           </a>
         </div>
@@ -70,4 +70,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default HeroSection;
