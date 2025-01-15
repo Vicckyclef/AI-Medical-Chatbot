@@ -4,6 +4,9 @@ import HeroSection from "./components/HeroSection";
 import SignUp from "./components/SignUp";
 import Login from "./components/Login";
 import ChatPage from "./components/ChatPage";
+import AppointmentPage from "./components/Appointment";
+import ManageAppointments from "./components/ManageAppointments";
+import SymptomChecker from "./components/SymptomChecker";
 
 function App() {
   return (
@@ -17,6 +20,12 @@ function App() {
         <Route path="/login" element={<Login />} />
         {/* Route to ChatPage */}
         <Route path="/ChatPage" element={<ChatPage />} />
+        {/* Route to AppointmentPage */}
+        <Route path="/Appointment" element={<AppointmentPage />} />
+        {/* Route to Manage Appointments */}
+        <Route path="/manage-appointments" element={<ManageAppointments />} />
+        {/* Route to symptom checker */}
+        <Route path="/symptom-checker" element={<SymptomChecker />} />
       </Routes>
     </Router>
   );

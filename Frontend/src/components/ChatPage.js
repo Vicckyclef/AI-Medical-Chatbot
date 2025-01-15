@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+
 import "./ChatPage.css";
 
 const ChatPage = ({ className, ...props }) => {
@@ -8,55 +10,91 @@ const ChatPage = ({ className, ...props }) => {
   const [isInConversation, setIsInConversation] = useState(false);
   const [recentChats, setRecentChats] = useState([]);
   const [showRecentChats, setShowRecentChats] = useState(false);
+  const [lastActivity, setLastActivity] = useState(Date.now());
 
   const toggleSidebar = () => {
     setIsSidebarActive((prevState) => !prevState);
+    setLastActivity(Date.now()); // Reset activity timer
   };
 
   const toggleRecentChats = () => {
     setShowRecentChats((prevState) => !prevState);
+    setLastActivity(Date.now()); // Reset activity timer
   };
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!inputValue.trim()) return;
 
     setMessages((prevMessages) => [
       ...prevMessages,
       { sender: "user", text: inputValue },
-      { sender: "bot", text: `Response for: ${inputValue}` },
     ]);
 
-    if (!isInConversation) setIsInConversation(true);
+    if (!isInConversation) {
+      setIsInConversation(true);
+    }
+
+    try {
+      const response = await axios.post("http://127.0.0.1:8000/chatbot/chat", {
+        user_id: 1, // Replace with actual user ID if dynamic
+        message: inputValue,
+      });
+
+      const botMessage = response.data?.response || "No valid response received.";
+
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { sender: "bot", text: botMessage },
+      ]);
+    } catch (error) {
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { sender: "bot", text: "An error occurred. Please try again later." },
+      ]);
+    }
 
     setInputValue("");
+    setLastActivity(Date.now()); // Reset activity timer
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      handleSend();
+    }
+    setLastActivity(Date.now()); // Reset activity timer
   };
 
   const handleNewChat = () => {
     if (messages.length > 0) {
       const newChat = {
         title: messages[0]?.text || "New Conversation",
-        history: [...messages], // Save the current conversation
+        history: [...messages],
       };
       setRecentChats((prevChats) => [...prevChats, newChat]);
     }
 
-    // Reset the chat state
     setMessages([]);
     setIsInConversation(false);
     setInputValue("");
-  };
-
-  const handleKeyPress = (e) => {
-    if (e.key === "Enter") {
-      handleSend(); // Trigger the send function on Enter key press
-    }
+    setLastActivity(Date.now()); // Reset activity timer
   };
 
   const loadChat = (chat) => {
-    // Load the selected chat's history
     setMessages(chat.history);
     setIsInConversation(true);
+    setLastActivity(Date.now()); // Reset activity timer
   };
+
+  // Auto-collapse the sidebar after 5 seconds of inactivity
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (Date.now() - lastActivity > 5000 && isSidebarActive) {
+        setIsSidebarActive(false); // Collapse the sidebar
+      }
+    }, 1000);
+
+    return () => clearInterval(interval); // Cleanup interval on unmount
+  }, [lastActivity, isSidebarActive]);
 
   return (
     <div className="chat-desktop">
@@ -70,7 +108,7 @@ const ChatPage = ({ className, ...props }) => {
             placeholder="Ask a health question..."
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
-            onKeyDown={handleKeyPress} // Listen for Enter key
+            onKeyDown={handleKeyPress}
           />
           <button className="send" onClick={handleSend}>
             <img src="../assets/send icon.png" alt="Send" />
@@ -85,13 +123,9 @@ const ChatPage = ({ className, ...props }) => {
       </div>
 
       <div className="chat-content-conversation" style={{ display: isInConversation ? "block" : "none" }}>
-        {/* Conversation State */}
         <div className="chat-window">
           {messages.map((msg, index) => (
-            <div
-              key={index}
-              className={`message ${msg.sender === "user" ? "user" : "bot"}`}
-            >
+            <div key={index} className={`message ${msg.sender === "user" ? "user" : "bot"}`}>
               {msg.text}
             </div>
           ))}
@@ -103,7 +137,7 @@ const ChatPage = ({ className, ...props }) => {
             placeholder="Ask a health question..."
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
-            onKeyDown={handleKeyPress} // Listen for Enter key
+            onKeyDown={handleKeyPress}
           />
           <button className="send" onClick={handleSend}>
             <img src="../assets/send icon.png" alt="Send" />
@@ -136,11 +170,7 @@ const ChatPage = ({ className, ...props }) => {
                 <p className="no-recent-chats">No recent chats</p>
               ) : (
                 recentChats.map((chat, index) => (
-                  <div
-                    key={index}
-                    className="recent-chat-item"
-                    onClick={() => loadChat(chat)} // Load the chat when clicked
-                  >
+                  <div key={index} className="recent-chat-item" onClick={() => loadChat(chat)}>
                     {chat.title}
                   </div>
                 ))

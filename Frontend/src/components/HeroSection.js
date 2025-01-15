@@ -1,71 +1,114 @@
-import React from 'react';
-import './HeroSection.css';
+import React, { useState } from "react";
+import { FaStethoscope, FaCalendarAlt, FaPills, FaMapMarkerAlt, FaBars, FaBell } from "react-icons/fa";
 
 const HeroSection = () => {
+  const [activeNav, setActiveNav] = useState("home");
+  const [isNavCollapsed, setIsNavCollapsed] = useState(false);
+
+  const navItems = [
+    { id: "find-doctor", label: "Find Doctor", icon: <FaStethoscope /> },
+    { id: "my-appointment", label: "My Appointment", icon: <FaCalendarAlt /> },
+    { id: "my-medicine", label: "My Medicine", icon: <FaPills /> },
+    { id: "tracker", label: "Tracker", icon: <FaMapMarkerAlt /> },
+    { id: "notifications", label: "Notifications", icon: <FaBell /> },
+  ];
+
   return (
-    <div className="dashboard">
-      {/* Navigation Bar */}
-      <nav className="navigation">
-        <img src="../assets/logo1.png" alt="Logo" className="logo" />
-        <div className="sign">
-          <a href="/signup">
-            <button className="button sign-up">Sign Up</button>
-          </a>
-          <a href="/login">
-            <button className="button sign-in">Sign In</button>
-          </a>
-        </div>
-      </nav>
-
-      {/* Hero Section */}
-      <div className="hero-section">
-        <div className="header-content">
-          <h1 className="header-title">Empowering Health With AI Chatbots</h1>
-          <svg
-            className="line"
-            xmlns="http://www.w3.org/2000/svg"
-            width="533"
-            height="10"
-            viewBox="0 0 533 10"
-            fill="none"
-          >
-            <path
-              fillRule="evenodd"
-              clipRule="evenodd"
-              d="M12.2525 1.68631C23.5492 2.2401 53.2374 2.26779 133.83 2.32317C259.678 2.40624 359.557 3.01541 387.316 3.90147C389.521 3.98454 213.113 4.59371 194.997 4.15068C166.756 3.43075 31.8839 4.03992 4.74425 4.87061C-2.97055 5.09213 -0.077469 5.86744 4.95093 6.03358C12.8035 6.31047 33.8816 6.28278 91.674 6.2274C132.314 6.19971 455.648 6.83657 490.984 7.97185C510.822 8.60871 522.877 9.19019 528.387 9.05174C533.002 8.94098 533.071 8.60871 529.076 7.69495C526.39 7.08578 529.42 6.72581 531.349 6.55968C534.311 6.28278 533.071 5.34133 529.352 4.59371C524.323 3.5692 515.644 3.59689 519.777 4.6214C520.672 4.84292 520.879 5.39671 517.71 5.28595C508.48 4.95368 443.249 2.68313 425.546 2.29548C236.533 -1.91334 52.0663 1.1602 13.0101 0.135686C-0.835204 -0.251968 5.50205 1.35403 12.2525 1.68631Z"
-              fill="#25B4F8"
+    <div className="flex w-screen h-screen bg-gradient-to-tr from-white via-blue-100 to-blue-200 overflow-hidden">
+      {/* Left Navigation Bar */}
+      <div
+        className={`${
+          isNavCollapsed ? "w-16" : "w-1/5"
+        } bg-blue-900 h-full flex flex-col items-start py-8 px-4 text-white transition-width duration-300`}
+      >
+        <div className="flex items-center justify-between w-full px-2">
+          {!isNavCollapsed && (
+            <img
+              src="../assets/logo1.png"
+              alt="Logo"
+              className="w-24 transition-width duration-300"
             />
-          </svg>
-          <p className="header-subtitle">
-            Our AI-powered healthcare chatbot enhances patient support by providing accurate, real-time medical guidance and automating routine healthcare tasks.
-          </p>
-          <a href="/ChatPage">
-            <button className="button get-started">Get Started</button>
-          </a>
+          )}
+          <button
+            onClick={() => setIsNavCollapsed(!isNavCollapsed)}
+            className="text-white focus:outline-none"
+          >
+            <FaBars size={24} />
+          </button>
         </div>
+        <ul className="flex flex-col gap-4 w-full mt-8">
+          {navItems.map((item) => (
+            <li
+              key={item.id}
+              className={`w-full flex items-center justify-center px-4 py-3 rounded-lg cursor-pointer ${
+                activeNav === item.id
+                  ? "bg-white text-blue-900 shadow-md"
+                  : "hover:bg-blue-700"
+              }`}
+              onClick={() => setActiveNav(item.id)}
+            >
+              {isNavCollapsed ? (
+                <div className="text-lg">{item.icon}</div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <div className="text-lg">{item.icon}</div>
+                  <span>{item.label}</span>
+                </div>
+              )}
+            </li>
+          ))}
+        </ul>
+      </div>
 
-        {/* Right Content Section */}
-        <div className="right-content">
-          <img src="../assets/middle.png" alt="Hero" className="hero-img" />
-          <div className="services">
-            <div className="services-content">
-              <img src="../assets/MEDICAL ASSISTANCE ICON.png" alt="Medical Assistance" />
-              <p>Medical Assistance</p>
-            </div>
-            <div className="services-content">
-              <img src="../assets/SYMPTOM CHECKER ICON.png" alt="Symptom Checker" />
-              <p>Symptom Checker</p>
-            </div>
-            <div className="services-content">
-              <img src="../assets/HEALTH ANALYTIC ICON.png" alt="Health Analytics" />
-              <p>Health Analytics</p>
-            </div>
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col overflow-hidden relative">
+        {/* Navigation Bar */}
+        <nav className="flex justify-between items-center p-6">
+          <div className="text-xl font-bold text-blue-900">My Application</div>
+          <div className="flex gap-4">
+            <a href="/signup">
+              <button className="px-6 py-3 rounded-lg bg-gradient-to-r from-blue-600 to-blue-400 text-white font-medium hover:scale-105 transition-transform">
+                Sign Up
+              </button>
+            </a>
+            <a href="/login">
+              <button className="px-6 py-3 rounded-lg border border-blue-600 text-blue-600 font-medium hover:bg-blue-100 transition-transform hover:scale-105">
+                Log in
+              </button>
+            </a>
+          </div>
+        </nav>
+
+        {/* Hero Section */}
+        <div className="flex flex-1 flex-col md:flex-row justify-between items-center px-6 md:px-12 relative">
+          {/* Left Section */}
+          <div className="w-full md:w-1/2 text-center md:text-left mb-8 md:mb-0">
+            <h1 className="text-4xl md:text-6xl font-extrabold text-blue-900 leading-tight mb-6">
+              Empowering Health <br />
+              With AI Chatbots
+            </h1>
+            <p className="text-lg text-gray-700 leading-relaxed mb-8">
+              Our AI-powered healthcare chatbot enhances patient support by
+              providing accurate, real-time medical guidance and automating
+              routine healthcare tasks.
+            </p>
+            <a href="/ChatPage">
+              <button className="px-6 py-3 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-800 transition-colors">
+                Get Started
+              </button>
+            </a>
+          </div>
+
+          {/* Right Section */}
+          <div className="w-full md:w-1/2 flex justify-center relative">
+            <img
+              src="../assets/middle.png"
+              alt="Hero"
+              className="max-w-full h-auto object-contain"
+            />
           </div>
         </div>
       </div>
-      <p className="footer-content">
-        Your privacy is our priority. All interactions are secure and confidential.
-      </p>
     </div>
   );
 };
