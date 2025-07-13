@@ -1,0 +1,16 @@
+4. Configure environment variables:
+   Create a `.env` file in the root directory with the following variables:
+   ```env
+   # Database Configuration
+   DB_HOST=localhost
+   DB_PORT=5432
+   DB_USER=postgres
+   DB_PASSWORD=AmazingGrace2025
+   DB_NAME=medical_chatbot
+
+   # JWT Authentication
+   JWT_SECRET_KEY=f7f7358f0b5e51a468f41a67e72d996b0fe84f74ecb4e716e4a6a29b5da72f17
+   JWT_ALGORITHM=HS256
+   ACCESS_TOKEN_EXPIRE_MINUTES=30
+   REFRESH_TOKEN_EXPIRE_DAYS=7
+   ```

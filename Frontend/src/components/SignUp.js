@@ -1,5 +1,7 @@
 import React, { useState } from "react";
-import axios from "axios";
+import { signUp } from "../utils/api";
+import { handleApiError, showSuccessNotification } from "../utils/errorHandler";
+import { ButtonSpinner } from "./LoadingSpinner";
 import "./Signup.css";
 
 const Signup = () => {
@@ -7,16 +9,73 @@ const Signup = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [networkError, setNetworkError] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   const handleSignup = async (e) => {
     e.preventDefault();
+    
+    // Clear previous errors
+    setError("");
+    setNetworkError(false);
+    setIsLoading(true);
+
     try {
-      const response = await axios.post("/api/signup", { name, email, password });
-      if (response.status === 201) {
-        window.location.href = "/login";
+      const response = await signUp({ name, email, password });
+      
+      if (response.success || response.id) {
+        showSuccessNotification("Account created successfully! Redirecting to login...");
+        
+        // Small delay to show success message
+        setTimeout(() => {
+          window.location.href = "/login";
+        }, 1500);
+      } else {
+        setError("Sign-up failed. Please try again.");
       }
     } catch (err) {
-      setError("Sign-up failed. Try again.");
+      const errorInfo = handleApiError(err, 'Sign Up');
+      
+      // Set appropriate error states
+      if (errorInfo.type === 'NETWORK' || errorInfo.type === 'TIMEOUT') {
+        setNetworkError(true);
+        setError("Network connection failed. Please check your internet connection.");
+      } else if (errorInfo.type === 'VALIDATION') {
+        setError("Please check your input. Email might already be taken.");
+      } else {
+        setError(errorInfo.message || "Sign-up failed. Please try again.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleRetry = () => {
+    if (name && email && password) {
+      handleSignup({ preventDefault: () => {} });
+    }
+  };
+
+  const handleGoogleSignup = async () => {
+    setGoogleLoading(true);
+    setError("");
+    
+    try {
+      const response = await fetch('http://localhost:8000/google/auth-url');
+      const data = await response.json();
+      
+      if (data.auth_url) {
+        // Redirect to Google OAuth
+        window.location.href = data.auth_url;
+      } else {
+        setError("Failed to initialize Google signup. Please try again.");
+      }
+    } catch (error) {
+      console.error('Error getting Google OAuth URL:', error);
+      setError("Failed to connect to Google. Please try again later.");
+    } finally {
+      setGoogleLoading(false);
     }
   };
 
@@ -34,10 +93,14 @@ const Signup = () => {
         <div className="right-section">
           <h2>Create An Account</h2>
           <p>Create your account to get started!</p>
-          <button className="google-btn"
-            onClick={() => (window.location.href = "/login")}>
+          <button 
+            className={`google-btn ${googleLoading ? 'loading' : ''}`}
+            onClick={handleGoogleSignup}
+            disabled={googleLoading || isLoading}
+          >
+            {googleLoading && <ButtonSpinner />}
             <img className="google-icon" src="/assets/google-icon.svg" alt="Google Icon" />
-            Sign up with Google
+            {googleLoading ? 'Connecting to Google...' : 'Sign up with Google'}
           </button>
           <div className="divider">
             <span>Or</span>
@@ -70,7 +133,27 @@ const Signup = () => {
               <label htmlFor="terms">I agree to the <a href="/terms" target="_blank">Terms</a> and <a href="/privacy" target="_blank">Privacy Policy</a></label>
             </div>
 
-            <button type="submit">Sign Up</button>
+            <div className="button-container">
+              <button 
+                type="submit" 
+                disabled={isLoading}
+                className={`signup-btn ${isLoading ? 'loading' : ''}`}
+              >
+                {isLoading && <ButtonSpinner />}
+                {isLoading ? 'Creating Account...' : 'Sign Up'}
+              </button>
+              
+              {networkError && (
+                <button 
+                  type="button" 
+                  onClick={handleRetry}
+                  className="retry-btn"
+                  disabled={isLoading}
+                >
+                  Retry
+                </button>
+              )}
+            </div>
           </form>
         </div>
       </div>

@@ -1,21 +1,82 @@
 import React, { useState } from "react";
-import axios from "axios";
+import { login } from "../utils/api";
+import { saveToken } from "../utils/auth";
+import { handleApiError, showSuccessNotification } from "../utils/errorHandler";
+import { ButtonSpinner } from "./LoadingSpinner";
 import "./Login.css";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [networkError, setNetworkError] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    
+    // Clear previous errors
+    setError("");
+    setNetworkError(false);
+    setIsLoading(true);
+
     try {
-      const response = await axios.post("/api/login", { email, password });
-      if (response.status === 200) {
-        window.location.href = "/dashboard";
+      const response = await login({ email, password });
+      
+      if (response.token) {
+        saveToken(response.token);
+        showSuccessNotification("Login successful! Redirecting...");
+        
+        // Small delay to show success message
+        setTimeout(() => {
+          window.location.href = "/dashboard";
+        }, 1000);
+      } else {
+        setError("Login failed. Please check your credentials.");
       }
     } catch (err) {
-      setError("Login failed. Please check your credentials.");
+      const errorInfo = handleApiError(err, 'Login');
+      
+      // Set appropriate error states
+      if (errorInfo.type === 'NETWORK' || errorInfo.type === 'TIMEOUT') {
+        setNetworkError(true);
+        setError("Network connection failed. Please check your internet connection.");
+      } else if (errorInfo.type === 'AUTHENTICATION') {
+        setError("Invalid email or password. Please try again.");
+      } else {
+        setError(errorInfo.message || "Login failed. Please try again.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleRetry = () => {
+    if (email && password) {
+      handleLogin({ preventDefault: () => {} });
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    setGoogleLoading(true);
+    setError("");
+    
+    try {
+      const response = await fetch('http://localhost:8000/google/auth-url');
+      const data = await response.json();
+      
+      if (data.auth_url) {
+        // Redirect to Google OAuth
+        window.location.href = data.auth_url;
+      } else {
+        setError("Failed to initialize Google login. Please try again.");
+      }
+    } catch (error) {
+      console.error('Error getting Google OAuth URL:', error);
+      setError("Failed to connect to Google. Please try again later.");
+    } finally {
+      setGoogleLoading(false);
     }
   };
 
@@ -24,12 +85,14 @@ const Login = () => {
       <div className="login-card">
         <div className="right-section">
           <h2>Welcome Back!</h2>
-          <button
-            className="google-btn"
-            onClick={() => (window.location.href = "/auth/google")}
+          <button 
+            className={`google-btn ${googleLoading ? 'loading' : ''}`}
+            onClick={handleGoogleLogin}
+            disabled={googleLoading || isLoading}
           >
+            {googleLoading && <ButtonSpinner />}
             <img className="google-icon" src="/assets/google-icon.svg" alt="Google Icon" />
-            Log in with Google
+            {googleLoading ? 'Connecting to Google...' : 'Log in with Google'}
           </button>
           <div className="divider">
             <span>Or</span>
@@ -59,7 +122,27 @@ const Login = () => {
                 Forget Password?
               </a>
             </div>
-            <button type="submit">Login</button>
+            <div className="button-container">
+              <button 
+                type="submit" 
+                disabled={isLoading}
+                className={`login-btn ${isLoading ? 'loading' : ''}`}
+              >
+                {isLoading && <ButtonSpinner />}
+                {isLoading ? 'Logging in...' : 'Login'}
+              </button>
+              
+              {networkError && (
+                <button 
+                  type="button" 
+                  onClick={handleRetry}
+                  className="retry-btn"
+                  disabled={isLoading}
+                >
+                  Retry
+                </button>
+              )}
+            </div>
           </form>
         </div>
 

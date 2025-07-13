@@ -1,33 +1,43 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import HeroSection from "./components/HeroSection";
 import SignUp from "./components/SignUp";
 import Login from "./components/Login";
 import ChatPage from "./components/ChatPage";
-import AppointmentPage from "./components/Appointment";
-import ManageAppointments from "./components/ManageAppointments";
-import SymptomChecker from "./components/SymptomChecker";
+import { ErrorBoundary } from "./utils/errorHandler";
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        {/* Default route to HeroSection */}
-        <Route path="/" element={<HeroSection />} />
-        {/* Route to SignUp */}
-        <Route path="/signup" element={<SignUp />} />
-        {/* Route to Login */}
-        <Route path="/login" element={<Login />} />
-        {/* Route to ChatPage */}
-        <Route path="/ChatPage" element={<ChatPage />} />
-        {/* Route to AppointmentPage */}
-        <Route path="/Appointment" element={<AppointmentPage />} />
-        {/* Route to Manage Appointments */}
-        <Route path="/manage-appointments" element={<ManageAppointments />} />
-        {/* Route to symptom checker */}
-        <Route path="/symptom-checker" element={<SymptomChecker />} />
-      </Routes>
-    </Router>
+    <ErrorBoundary>
+      <Router>
+        <Routes>
+          {/* Default route to HeroSection */}
+          <Route path="/" element={<HeroSection />} />
+          {/* Route to SignUp */}
+          <Route path="/signup" element={<SignUp />} />
+          {/* Route to Login */}
+          <Route path="/login" element={<Login />} />
+          {/* Route to ChatPage */}
+          <Route path="/ChatPage" element={<ChatPage />} />
+        </Routes>
+        
+        {/* Toast notification container */}
+        <ToastContainer
+          position="top-right"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="light"
+        />
+      </Router>
+    </ErrorBoundary>
   );
 }
 
