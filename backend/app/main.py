@@ -1,8 +1,11 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 import os
 from dotenv import load_dotenv
+from pydantic import BaseModel
+from typing import Optional
 
 # Load environment variables
 load_dotenv()
@@ -23,6 +26,21 @@ app = FastAPI(
     redoc_url="/redoc"
 )
 
+# OAuth2 scheme
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+
+# Pydantic models
+class UserCreate(BaseModel):
+    name: str
+    email: str
+    password: str
+    terms_agreed: bool = True
+
+class User(BaseModel):
+    id: int
+    name: str
+    email: str
+
 # CORS configuration for frontend integration
 app.add_middleware(
     CORSMiddleware,
@@ -40,6 +58,71 @@ async def root():
         "status": "healthy",
         "docs": "/docs"
     }
+
+# Authentication endpoints
+@app.post("/signup")
+async def signup(user_data: UserCreate):
+    """User registration endpoint"""
+    try:
+        # For now, return a mock response
+        # In production, you would save to database and hash password
+        return {
+            "message": "User registered successfully",
+            "user": {
+                "id": 1,
+                "name": user_data.name,
+                "email": user_data.email
+            },
+            "token": "mock_access_token_123"
+        }
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.post("/login")
+async def login(form_data: OAuth2PasswordRequestForm = Depends()):
+    """User login endpoint"""
+    try:
+        # For now, return a mock response
+        # In production, you would verify credentials against database
+        if form_data.username and form_data.password:
+            return {
+                "access_token": "mock_access_token_123",
+                "token_type": "bearer",
+                "user": {
+                    "id": 1,
+                    "name": "Test User",
+                    "email": form_data.username
+                }
+            }
+        else:
+            raise HTTPException(status_code=401, detail="Invalid credentials")
+    except Exception as e:
+        raise HTTPException(status_code=401, detail="Authentication failed")
+
+@app.get("/me")
+async def get_current_user(token: str = Depends(oauth2_scheme)):
+    """Get current user information"""
+    # For now, return mock user data
+    return {
+        "id": 1,
+        "name": "Test User",
+        "email": "user@example.com"
+    }
+
+@app.get("/chats")
+async def get_chats(token: str = Depends(oauth2_scheme)):
+    """Get user's chat history"""
+    return {"chats": []}
+
+@app.get("/chatbot/chat/history")
+async def get_chat_history(token: str = Depends(oauth2_scheme)):
+    """Get chat conversation history"""
+    return {"history": []}
+
+@app.post("/chatbot/save_conversation")
+async def save_conversation(data: dict, token: str = Depends(oauth2_scheme)):
+    """Save chat conversation"""
+    return {"message": "Conversation saved successfully"}
 
 @app.get("/health")
 async def health_check():
