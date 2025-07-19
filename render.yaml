@@ -1,0 +1,40 @@
+services:
+  # Backend API Service
+  - type: web
+    name: ai-medical-chatbot-api
+    env: python
+    region: oregon
+    buildCommand: "cd backend && pip install -r requirements.txt"
+    startCommand: "cd backend && python -m uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: HUGGINGFACE_TOKEN
+        sync: false  # Set this manually in Render dashboard
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: SECRET_KEY
+        generateValue: true
+      - key: POSTGRES_URL
+        fromDatabase:
+          name: ai-chatbot-db
+          property: connectionString
+    autoDeploy: true
+    
+  # Frontend Web Service (if you want both on Render)
+  - type: web
+    name: ai-medical-chatbot-frontend
+    env: static
+    buildCommand: "cd Frontend && npm install && npm run build"
+    staticPublishPath: Frontend/build
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+
+databases:
+  # PostgreSQL Database (Optional)
+  - name: ai-chatbot-db
+    databaseName: medical_chatbot
+    user: chatbot_user
+    region: oregon
